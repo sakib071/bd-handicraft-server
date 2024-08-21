@@ -103,7 +103,7 @@ async function run() {
         });
 
 
-        app.put('/users/:email', async (req, res) => {
+        app.patch('/users/:email', async (req, res) => {
             console.log('Request body:', req.body);
             console.log('Updating user with email:', req.params.email);
             const email = req.params.email;
