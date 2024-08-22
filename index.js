@@ -91,44 +91,31 @@ async function run() {
         })
 
 
-        app.get('/users/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email };
-            const user = await userCollection.findOne(query);
-            if (user) {
-                res.send(user); // Send the user object directly
-            } else {
-                res.status(404).send({ message: 'User not found' });
-            }
-        });
-
-
         app.patch('/users/:email', async (req, res) => {
             console.log('Request body:', req.body);
             console.log('Updating user with email:', req.params.email);
-            const email = req.params.email;
-            const updatedUser = req.body;
-
-            const query = { email: email };
-            const options = { upsert: false }; // Ensures that if no match is found, a new user is not inserted
-            const updateDoc = {
-                $set: {
-                    displayName: updatedUser.displayName,
-                    photoURL: updatedUser.photoURL,
-                },
-            };
-
             try {
-                const result = await userCollection.updateOne(query, updateDoc, options);
-                if (result.matchedCount === 0) {
-                    return res.status(404).send({ message: 'User not found' });
+                const { email } = req.params;
+                const { displayName, photoURL } = req.body;
+
+                // Update the user document in MongoDB
+                const updatedUser = await User.findOneAndUpdate(
+                    { email: email },
+                    { displayName, photoURL },
+                    { new: true } // Return the updated document
+                );
+
+                if (updatedUser) {
+                    res.json({ success: true, data: updatedUser });
+                } else {
+                    res.status(404).json({ success: false, error: 'User not found' });
                 }
-                res.send({ message: 'User profile updated successfully' });
             } catch (error) {
-                console.error('Error updating profile:', error);
-                res.status(500).send({ message: 'Failed to update profile' });
+                console.error(error);
+                res.status(500).json({ success: false, error: 'Server error' });
             }
         });
+
 
 
         app.post('/users', async (req, res) => {
