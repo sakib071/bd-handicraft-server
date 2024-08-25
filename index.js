@@ -187,7 +187,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('boss is running');
+    res.send('bd-handicrafts is running');
 })
 
 app.listen(port, () => {
